@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVOS — Toshkent bo‘ylab taom yetkazib berish</title>
+    <link rel="stylesheet" href="./hfkthk.css">
+</head>
+<body>
+
+    <div id="main-app">
+    <!-- Header -->
+    <header>
+        <div class="top-bar">
+            <a href="#" class="logo">EVOS</a>
+            <div class="header-actions">
+                <a href="tel:+998712031212" class="phone-link">+998 71 203 12 12</a>
+                <div class="search-container">
+                    <button class="search-toggle" id="search-toggle" type="button" aria-label="Mahsulot qidirish" aria-expanded="false" aria-controls="search-panel">
+                        <svg aria-hidden="true" viewBox="0 0 24 24">
+                            <circle cx="10.8" cy="10.8" r="6.8"></circle>
+                            <path d="m16 16 5 5"></path>
+                        </svg>
+                    </button>
+                    <div class="search-panel" id="search-panel" hidden>
+                        <input type="search" id="product-search" placeholder="Mahsulot nomini yozing..." autocomplete="off" aria-label="Mahsulot nomi">
+                        <div class="search-results" id="search-results" role="listbox" aria-label="Qidiruv natijalari"></div>
+                    </div>
+                </div>
+                <button class="cart-btn" onclick="openCart()">
+                    🛒 Savat <span class="cart-badge" id="cart-count">0</span>
+                </button>
+                <button class="orders-btn" type="button" onclick="openLatestOrder()">Buyurtmangiz</button>
+                <button class="login-btn" type="button" onclick="openLogin()">Kirish</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <ul id="sidebar-menu"></ul>
+        </aside>
+
+        <!-- Main Content (Categories & Products) -->
+        <main class="content" id="main-content"></main>
+    </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div class="modal-overlay" id="detail-modal" onclick="closeModalOnBg(event, 'detail-modal')">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('detail-modal')">✕</button>
+            <img src="" alt="" class="detail-img" id="detail-img">
+            <h2 class="detail-title" id="detail-title"></h2>
+            <p class="detail-desc" id="detail-desc"></p>
+            <div class="detail-footer">
+                <span class="detail-price" id="detail-price"></span>
+                <button class="cart-btn" id="detail-add-btn">Savatga qo‘shish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart & Order Modal -->
+    <div class="modal-overlay" id="cart-modal" onclick="closeModalOnBg(event, 'cart-modal')">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('cart-modal')">✕</button>
+            <h2 class="modal-heading">Sizning savatingiz</h2>
+            <div id="cart-items-container"></div>
+            <div id="cart-summary" class="cart-summary">
+                <span>Jami summa:</span>
+                <span id="cart-total-price">0 so'm</span>
+            </div>
+
+            <form class="order-form" id="order-form" onsubmit="submitOrder(event)">
+                <input type="text" id="cust-name" placeholder="Ismingiz" required>
+                <input type="tel" id="cust-phone" placeholder="Telefon raqamingiz (+998 90 123 45 67)" required>
+                <input type="text" id="cust-address" placeholder="Yetkazib berish manzili (Toshkent sh.)" required>
+                <button type="submit" class="submit-order-btn">EVOS kompaniyasiga buyurtma berish</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Receipt Modal -->
+    <div class="modal-overlay" id="order-modal" onclick="closeModalOnBg(event, 'order-modal')">
+        <div class="modal-box order-modal-box">
+            <button class="close-btn" onclick="closeModal('order-modal')">✕</button>
+            <h2 class="modal-heading">Buyurtmangiz</h2>
+            <div id="order-receipt-content"></div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="login-modal" onclick="closeModalOnBg(event, 'login-modal')">
+        <div class="modal-box login-modal-box">
+            <button class="close-btn" onclick="closeModal('login-modal')">✕</button>
+            <h2 class="modal-heading">Admin tizimiga kirish</h2>
+            <form class="order-form" id="login-form" onsubmit="submitLogin(event)">
+                <input type="text" id="admin-login" placeholder="Login" autocomplete="username" required>
+                <input type="password" id="admin-password" placeholder="Parol" autocomplete="current-password" required>
+                <p class="login-error" id="login-error"></p>
+                <button type="submit" class="submit-order-btn">Kirish</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <section class="admin-page" id="admin-modal" aria-label="Admin oynasi" hidden>
+        <div class="admin-modal-box">
+            <div class="admin-heading-row">
+                <h2 class="modal-heading">Admin oynasi</h2>
+                <div class="admin-heading-actions">
+                    <button class="edit-btn" type="button" onclick="toggleEditMenu()">O‘zgartirish</button>
+                    <button class="logout-btn" type="button" onclick="logoutAdmin()">Chiqish</button>
+                </div>
+            </div>
+            <div class="edit-menu" id="edit-menu" hidden>
+                <div class="edit-menu-heading">
+                    <h3>Menyu oynasi</h3>
+                    <button class="edit-menu-close" type="button" onclick="toggleEditMenu(false)">✕</button>
+                </div>
+                <div class="edit-category-list" id="edit-category-list"></div>
+                <form class="add-product-form" id="add-product-form" onsubmit="submitNewProduct(event)" hidden>
+                    <h3>Yangi mahsulot</h3>
+                    <input type="text" id="new-product-name" placeholder="Mahsulot nomi" required>
+                    <input type="url" id="new-product-image" placeholder="Mahsulot rasmi (URL)" required>
+                    <select id="new-product-category" required>
+                        <option value="">Bo‘limni tanlang</option>
+                    </select>
+                    <input type="number" id="new-product-price" placeholder="Narxi (so‘m)" min="1" required>
+                    <div class="add-product-actions">
+                        <button type="button" class="edit-menu-close" onclick="closeAddProductForm()">Bekor qilish</button>
+                        <button type="submit" class="submit-order-btn">Qo‘shish</button>
+                    </div>
+                </form>
+            </div>
+            <div class="admin-stats" id="admin-stats"></div>
+            <div class="admin-time-grid">
+                <div class="admin-info-card" id="peak-hour-card"></div>
+                <div class="admin-info-card" id="peak-day-card"></div>
+            </div>
+            <h3 class="history-heading">Haridlar tarixi</h3>
+            <div class="admin-history" id="admin-history"></div>
+        </div>
+    </section>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">Mahsulot savatga qo‘shildi!</div>
+
+    <script src="./dfwdse.js"></script>
+</body>
+</html>
